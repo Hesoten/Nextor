@@ -1100,7 +1100,10 @@ BOTTOM_OK:
 	push af
 	and 100b
 	ld	(PROCNM+10),a
-    ld b,a
+	;--- Bugfix: "ld b,a" clobbered B (drive count from DRV_INIT) with the
+	;    config flag, so drive-based drivers registered 0 drives. The flag
+	;    is read back from PROCNM+10; nop keeps the code size intact.
+    nop
 	pop af
 	pop	hl
 	jr	z,NO_DEVBASED
