@@ -618,8 +618,14 @@ CHGET	EQU     09FH
 
     ;Returns A=1 if we have a Russian keyboard, A=0 otherwise
 CHECK_IS_RUSSIAN: ; in case of ZF
-	DI
-	CALL KILBUF
+	;--- Always report "international keyboard": the original detection
+	;    CALLs the main-BIOS internal 0D89h, which crashes on non-standard
+	;    BIOSes (C-BIOS). Replaces "DI / CALL KILBUF" to keep addresses.
+	xor	a
+	ret
+	nop
+	nop
+	;--- Rest of the original detection follows (unreachable):
 	LD HL,(CAPST)
 	LD A,(CLIKSW)
 	PUSH AF
