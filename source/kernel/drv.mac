@@ -824,6 +824,12 @@ DIO_RNF:
 ; Corrupts IY, F.
 
 IS_DVB:
+	;A drive-based standalone build has no device-based drives. Also,
+	;DVB_TABLE (F314) lies in RAM unused by real DOS1 kernels, so games
+	;overwrite it (e.g. FRAY) and DSKIO got misrouted via a garbage pointer.
+	and	a	;Cy=0: never device-based
+	ret
+
 	push	af
 	ld	a,(DOS_VER##)
 	or	a
