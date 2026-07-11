@@ -853,6 +853,11 @@ IS_DVB_NOEMU:
 	ld	c,a	;C = Drive number
 	ld	b,(iy)	;B = num of entries in DVB_TABLE
 	inc	iy
+	;--- Bugfix: with 0 entries, djnz looped 256 times over unrelated RAM;
+	;    garbage could match and misroute to the device-based path.
+	inc	b
+	dec	b
+	jr	z,IS_DVB_END
 
 IS_DVB_LOOP:
     push bc
@@ -880,6 +885,7 @@ DIO_NEXT:
 	add	iy,bc
 	pop	bc
 	djnz	IS_DVB_LOOP
+IS_DVB_END:
 	pop	bc
 
 IS_NOT_DVB:
