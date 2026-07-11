@@ -3125,7 +3125,16 @@ BSEC_TYPE:
 	ld	a,1
 	ret	z
 
-	;2) Check for sector count >65535, if so, return type 2
+	;2) Check for EBS; if not present assume DOS 1.
+	;   Checking the sector count alone misclassified DOS 1 game disks
+	;   with a garbage BPB as type 2, preventing boot.
+
+	ld	a,(BOOTAD + UPB_EXTENDED_SIGNATURE##)
+	and	028h
+	cp	028h
+	jr	nz,NOEBS
+
+	;3) Check for sector count >65535, if so, return type 2
 
 	ld	hl,BOOTAD + UPB_TOTAL_SECTORS##
 	ld	a,(hl)
@@ -3134,12 +3143,7 @@ BSEC_TYPE:
 	ld	a,2
 	ret	z
 
-	;3) Check for EBS, if found, return type 2
-
-	ld	a,(BOOTAD + UPB_EXTENDED_SIGNATURE##)
-	and	028h
-	cp	028h
-	jr	nz,NOEBS
+	;4) Check for FAT filesystem string, if found, return type 2
 
 	ld	hl,BOOTAD + UPB_FILESYSTEM##
 	ld	de,FAT_STR
@@ -3151,7 +3155,7 @@ BSEC_TYPE:
 	ret
 NOEBS:
 
-	;4) If all failed, assume a DOS 1 disk
+	;5) If all failed, assume a DOS 1 disk
 
 	xor	a
 	ret
