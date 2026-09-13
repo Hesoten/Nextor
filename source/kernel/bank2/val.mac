@@ -2905,6 +2905,8 @@ fmt_devcmd_routine:
 
 ;-----------------------------------------------------------------------------
 ;
+CALLB0_ENTRY	equ	403Fh	;Calls (BK4_ADD) in MAIN_BANK, then restores the bank
+;
 CALL_DRV:
 ;
 ;    This routine is used by the above routines  to  actually  call  the  disk
@@ -2955,6 +2957,20 @@ endif
 		ld	e,(ix+UD_OFFSET##)	; defines start of table) and
 		ld	d,0			; store it in page-3. Do not
 		add	hl,de			; modify address if calling
+;
+; The 4010h entry table is only valid with MAIN_BANK paged in, so a driver in
+; this ROM must be entered through CALLB0.  One in another slot is called direct.
+;
+		push	af			;A is the page-2 segment for PUT_P2
+		ld	a,(ix+UD_SLOT##)
+		ld	e,a
+		ld	a,(MASTER_SLOT##)
+		cp	e
+		jr	nz,CALDRV_OTHER_SLOT
+		ld	(BK4_ADD##),hl
+		ld	hl,CALLB0_ENTRY
+CALDRV_OTHER_SLOT:
+		pop	af
 		jr	CALDRV_NEXT		; a device-based driver.
 CALDRV_DEVBASED:
 		ld	(BK4_ADD##),hl	;Call via CALDRV is needed 
