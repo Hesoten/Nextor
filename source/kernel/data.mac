@@ -254,7 +254,9 @@ ram_ad	defl	DATABASE
 ;
 ;	------------------------
 ;
-	spare	4
+	spare	1
+	var1	KSLOT		;Slot of disk controller being called (DOS 1 mode)
+	var2	DVB_TABLE	;Pointer to table of device-based drives for DOS 1
 ;
 	var1	RAWFLG, F30D	;Read-after write flag - must not move
 	var1	COUNTRY,F30E	;Accessed by COMMAND.COM - can't move
@@ -269,8 +271,6 @@ ram_ad	defl	DATABASE
 	var1	P2_64K		; /  by anyone (including the system).
 	var1	P3_64K		;/
 
-    const   DVB_TABLE,P0_64K  ;Pointer to table of device-based drives for DOS1
-    const   KSLOT,P2_64K  ;Slot of disk controller being called (used in DOS 1 mode)
 ;
 	var1	NXT_VER		;Nextor version numbr
 	var1	MAIN_BANK	;Will be 0 in normal mode or 3 in DOS 1 mode
